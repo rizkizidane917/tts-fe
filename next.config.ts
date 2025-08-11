@@ -1,8 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
+  env: {
+    api_v1: process.env.API_URL,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
