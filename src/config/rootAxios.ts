@@ -18,6 +18,7 @@ export const Axios: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface RootAxiosParams {
   path: string;
   params?: Record<string, any>;
@@ -25,6 +26,7 @@ export interface RootAxiosParams {
   method: Method;
   api?: string;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const rootAxios = async <T = unknown>({
   path,
@@ -32,16 +34,24 @@ export const rootAxios = async <T = unknown>({
   payload,
   method,
 }: RootAxiosParams): Promise<T> => {
-  const config: AxiosRequestConfig = {
-    params,
-  };
-
+  const config: AxiosRequestConfig = { params };
   let res: AxiosResponse<T>;
 
-  if (method.toLowerCase() === "get" || method.toLowerCase() === "delete") {
-    res = await Axios[method](path, config);
+  const lowerMethod = method.toLowerCase() as Method;
+
+  if (lowerMethod === "get" || lowerMethod === "delete") {
+    res = await Axios.request<T>({
+      url: path,
+      method: lowerMethod,
+      ...config,
+    });
   } else {
-    res = await Axios[method](path, payload, config);
+    res = await Axios.request<T>({
+      url: path,
+      method: lowerMethod,
+      data: payload,
+      ...config,
+    });
   }
 
   return res.data;

@@ -2,14 +2,15 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface HistoryItem {
-  id: number;
-  fullText: string;
+  id: string;
+  text: string;
   language: string;
   voice: string;
-  date: string;
-  speed: string;
-  pitch: string;
-  volume: string;
+  createdAt: string;
+  rate: number;
+  pitch: number;
+  volume: number;
+  userId: string;
 }
 
 interface HistoryState {
