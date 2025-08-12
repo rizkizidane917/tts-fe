@@ -1,4 +1,5 @@
 import LoginForm from "@/components/page-components/Login/LoginForm";
+import { GetServerSideProps } from "next";
 
 const LoginPage = () => {
   return (
@@ -9,3 +10,18 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const jwt = ctx.req.cookies["jwt"];
+
+  if (jwt) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+};

@@ -17,23 +17,25 @@ const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setUser } = useAuthStore();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const mutationLogin = useCustomMutation<LoginResponse>({
     onSuccess: async (data) => {
       setIsLoading(false);
 
-      // simpan token dan user
       if (data?.access_token) {
-        setAuthToken(data.access_token); // simpan token ke axios & localStorage
+        setAuthToken(data.access_token);
       }
       if (data?.user) {
-        setUser(data.user); // simpan ke zustand & localStorage
+        setUser(data.user);
       }
 
       router.push("/");
     },
     onError: (err) => {
       setIsLoading(false);
+      1;
       console.error(err);
     },
   });
@@ -43,8 +45,8 @@ const LoginForm = () => {
       path: "/auth/login",
       method: "post",
       payload: {
-        email: "zidane917@gmail.com",
-        password: "testing123",
+        email,
+        password,
       },
     });
   };
@@ -77,6 +79,9 @@ const LoginForm = () => {
             type="email"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
             placeholder="Enter your email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="w-full">
@@ -87,15 +92,18 @@ const LoginForm = () => {
             type="password"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
             placeholder="Enter your password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <button
           onClick={handleLogin}
           type="button"
-          // type="submit"
+          disabled={isLoading}
           className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
         >
-          Sign In
+          Sign In {isLoading && "..."}
         </button>
       </div>
     </div>

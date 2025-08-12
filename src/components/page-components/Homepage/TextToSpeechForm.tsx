@@ -1,4 +1,5 @@
-import { useHistoryStore } from "@/store/historyStore";
+import { useCustomMutation } from "@/hooks/useCustomMutation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 interface VoiceOption {
@@ -10,12 +11,14 @@ const TextToSpeechForm = () => {
   const [text, setText] = useState("");
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption | null>(null);
-  const [speed, setSpeed] = useState(1);
-  const [pitch, setPitch] = useState(1);
-  const [volume, setVolume] = useState(0.8);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [rate, setRate] = useState<number>(1);
+  const [pitch, setPitch] = useState<number>(1);
+  const [volume, setVolume] = useState<number>(0.8);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const queryClient = useQueryClient();
 
   const handlePlayPause = () => {
     if (isSpeaking) {
@@ -36,7 +39,7 @@ const TextToSpeechForm = () => {
             ) || null;
         }
 
-        utterance.rate = speed;
+        utterance.rate = rate;
         utterance.pitch = pitch;
         utterance.volume = volume;
 
@@ -60,23 +63,42 @@ const TextToSpeechForm = () => {
     utteranceRef.current = null;
   };
 
-  const addHistory = useHistoryStore((state) => state.addHistory);
+  const saveAudio = useCustomMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      queryClient.invalidateQueries({ queryKey: ["conversion-list"] });
+    },
+    onError: (err) => {
+      console.error("Error saving audio:", err);
+      setIsLoading(false);
+    },
+  });
 
   const handleSave = () => {
     if (!text.trim()) return;
 
-    const newItem = {
-      id: Date.now(),
-      fullText: text,
-      language: selectedVoice?.lang || "",
-      voice: `${selectedVoice?.name || ""}`,
-      date: new Date().toLocaleString(),
-      speed: `${speed.toFixed(1)}x`,
-      pitch: `${pitch.toFixed(1)}x`,
-      volume: `${Math.round(volume * 100)}`,
-    };
+    setIsLoading(true);
+    // const newItem = {
+    //   text: text,
+    //   language: selectedVoice?.lang || "",
+    //   voice: `${selectedVoice?.name || ""}`,
+    //   rate: rate,
+    //   pitch: pitch,
+    //   volume: Math.round(volume * 100),
+    // };
 
-    addHistory(newItem);
+    saveAudio.mutate({
+      path: "/conversion",
+      method: "post",
+      payload: {
+        text: text,
+        language: `${selectedVoice?.lang || ""}`,
+        voice: `${selectedVoice?.name || ""}`,
+        rate: rate,
+        pitch: pitch,
+        volume: Math.round(volume * 100),
+      },
+    });
   };
 
   return (
@@ -105,19 +127,19 @@ const TextToSpeechForm = () => {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Speed
+            Rate
           </label>
           <input
             type="range"
-            min="0.5"
-            max="2"
-            step="0.1"
-            value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
+            min={0.5}
+            max={2}
+            step={0.1}
+            value={rate}
+            onChange={(e) => setRate(parseFloat(e.target.value))}
             className="w-full"
           />
           <div className="text-center text-xs text-gray-500 mt-1">
-            {speed.toFixed(1)}x
+            {rate.toFixed(1)}x
           </div>
         </div>
 
@@ -166,11 +188,11 @@ const TextToSpeechForm = () => {
           <div className="flex items-center space-x-3">
             <button
               onClick={handlePlayPause}
-              disabled={text.length === 0}
+              disabled={isLoading || text == ""}
               className={`${
-                text.length > 0
-                  ? "bg-indigo-600 hover:bg-indigo-700"
-                  : "bg-gray-400 cursor-not-allowed"
+                text == "" || isLoading
+                  ? "bg-gray-400 cursor-not-allowed "
+                  : "bg-indigo-600 hover:bg-indigo-700"
               } text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors`}
             >
               {isSpeaking ? (
@@ -206,7 +228,11 @@ const TextToSpeechForm = () => {
 
             <button
               onClick={handleStop}
-              className="bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+              className={`${
+                isLoading || text == ""
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700 "
+              }  text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors`}
             >
               <svg
                 className="size-6"
@@ -220,7 +246,12 @@ const TextToSpeechForm = () => {
           </div>
           <button
             onClick={handleSave}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center space-x-2"
+            disabled={isLoading || text == ""}
+            className={`${
+              isLoading || text == ""
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 cursor-pointer"
+            }  text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2`}
           >
             <svg
               className="size-5 pb-1"
@@ -238,7 +269,7 @@ const TextToSpeechForm = () => {
                 d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
               ></path>
             </svg>
-            <span>Save Audio</span>
+            <span>{isLoading ? "Saving Audio..." : "Save Audio"}</span>
           </button>
         </div>
       </div>
