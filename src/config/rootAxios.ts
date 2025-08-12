@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 const Lang = Cookies.get("lang");
 
 export const Axios: AxiosInstance = axios.create({
-  baseURL: process.env.api_v1,
+  baseURL: process.env.NEXT_PUBLIC_API_KEY,
   headers: {
     "Content-Type": "application/json",
     "Accept-Language": Lang,
