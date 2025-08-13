@@ -1,21 +1,16 @@
-// config/rootaxios.ts
 import axios, {
-  AxiosInstance,
   AxiosRequestConfig,
+  AxiosInstance,
   AxiosResponse,
   Method,
 } from "axios";
-import Cookies from "js-cookie";
-
-const Lang = Cookies.get("lang");
 
 export const Axios: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_KEY,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    "Accept-Language": Lang,
   },
-  withCredentials: true,
 });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
