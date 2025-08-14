@@ -1,6 +1,7 @@
 import { setAuthToken } from "@/config/rootAxios";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { AxiosError } from "axios";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -25,9 +26,16 @@ const LoginForm = () => {
     email?: string;
     password?: string;
     general?: string;
-  }>({});
+  }>({
+    email: "",
+    password: "",
+    general: "",
+  });
 
-  const mutationLogin = useCustomMutation<LoginResponse>({
+  const mutationLogin = useCustomMutation<
+    LoginResponse,
+    AxiosError<{ message: string }>
+  >({
     onSuccess: async (data) => {
       setIsLoading(false);
       if (data?.access_token) {
@@ -38,11 +46,11 @@ const LoginForm = () => {
       }
       router.push("/");
     },
-    onError: (err: any) => {
+    onError: (err) => {
       setIsLoading(false);
       setErrors((prev) => ({
         ...prev,
-        general: err?.response?.data?.message || "Login failed",
+        general: err.response?.data?.message || "Login failed",
       }));
     },
   });
@@ -50,7 +58,7 @@ const LoginForm = () => {
   const handleLogin = () => {
     setErrors({});
 
-    let newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
     if (!email.trim()) {
       newErrors.email = "Email should be filled";
     }
