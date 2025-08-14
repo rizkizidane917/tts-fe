@@ -17,43 +17,64 @@ const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setUser } = useAuthStore();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
 
   const mutationLogin = useCustomMutation<LoginResponse>({
     onSuccess: async (data) => {
       setIsLoading(false);
-
       if (data?.access_token) {
         setAuthToken(data.access_token);
       }
       if (data?.user) {
         setUser(data.user);
       }
-
       router.push("/");
     },
-    onError: (err) => {
+    onError: (err: any) => {
       setIsLoading(false);
-      1;
-      console.error(err);
+      setErrors((prev) => ({
+        ...prev,
+        general: err?.response?.data?.message || "Login failed",
+      }));
     },
   });
 
   const handleLogin = () => {
+    setErrors({});
+
+    let newErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) {
+      newErrors.email = "Email should be filled";
+    }
+    if (!password.trim()) {
+      newErrors.password = "Password should be filled";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
     mutationLogin.mutate({
       path: "/auth/login",
       method: "post",
-      payload: {
-        email,
-        password,
-      },
+      payload: { email, password },
     });
   };
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
       <div className="text-center mb-8 flex flex-col gap-4">
-        <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto ">
+        <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -68,6 +89,13 @@ const LoginForm = () => {
         <p className="text-gray-600 text-lg">
           Advanced Text-to-Speech Platform
         </p>
+
+        {/* General Error Message from API */}
+        {errors.general && (
+          <div className="bg-red-100 w-full rounded-lg p-5 text-left">
+            <p className="text-red-500 text-sm">{errors.general}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center flex-col gap-6">
@@ -77,33 +105,47 @@ const LoginForm = () => {
           </label>
           <input
             type="email"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
+            className={`w-full px-4 py-3 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500`}
             placeholder="Enter your email"
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {errors.email && (
+            <p className="text-red-500 text-[12px] mt-1">{errors.email}</p>
+          )}
         </div>
+
         <div className="w-full">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
           <input
             type="password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
+            className={`w-full px-4 py-3 border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500`}
             placeholder="Enter your password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {errors.password && (
+            <p className="text-red-500 text-[12px] mt-1">{errors.password}</p>
+          )}
         </div>
+
         <button
           onClick={handleLogin}
           type="button"
           disabled={isLoading}
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+          className={`${
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+          } w-full text-white py-3 rounded-lg font-medium transition-colors`}
         >
-          Sign In {isLoading && "..."}
+          {isLoading ? "Sign In..." : "Sign In"}
         </button>
       </div>
     </div>
