@@ -78,14 +78,6 @@ const TextToSpeechForm = () => {
     if (!text.trim()) return;
 
     setIsLoading(true);
-    // const newItem = {
-    //   text: text,
-    //   language: selectedVoice?.lang || "",
-    //   voice: `${selectedVoice?.name || ""}`,
-    //   rate: rate,
-    //   pitch: pitch,
-    //   volume: Math.round(volume * 100),
-    // };
 
     saveAudio.mutate({
       path: "/conversion",

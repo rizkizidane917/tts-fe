@@ -101,7 +101,7 @@ const HistoryList = () => {
           </h3>
         </div>
 
-        {fetchQueryConversion?.status == "pending" && <>Loading...</>}
+        {fetchQueryConversion?.status == "pending" && <SkeletonHistory />}
         {fetchQueryConversion?.status == "success" && (
           <>
             {historyData?.length == 0 && (
@@ -355,6 +355,21 @@ const HistoryList = () => {
         )}
       </div>
     </section>
+  );
+};
+
+const SkeletonHistory = () => {
+  return (
+    <div className="bg-gray-200 rounded-lg p-4">
+      <div className="bg-gray-300 w-[70%] h-4 animate-pulse"></div>
+      <div className="flex justify-between mt-4">
+        <div className="flex items-center gap-4 ">
+          <div className="bg-gray-300 w-[50px] h-4 animate-pulse" />
+          <div className="bg-gray-300 w-[80px] h-4 animate-pulse" />
+        </div>{" "}
+        <div className="bg-gray-300 w-[20%] h-4 animate-pulse" />
+      </div>
+    </div>
   );
 };
 
