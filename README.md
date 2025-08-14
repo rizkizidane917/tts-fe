@@ -1,40 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Text-to-Speech Web Application — Frontend
 
-## Getting Started
+This project is the frontend for a Text-to-Speech Web Application, built with:
 
-First, run the development server:
+- **Next.js** – React framework for fast SSR/SSG and routing.
+- **Tailwind CSS** – Utility-first styling framework.
+- **Zustand** – Lightweight state management.
+- **TanStack React Query** – Data fetching, caching, and synchronization.
+
+---
+
+## A. Setup & Running Locally
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/rizkizidane917/tts-fe.git
+cd tts-fe
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment variables
+
+```bash
+API_URL=http://localhost:4001/api
+NEXT_PUBLIC_API_KEY=http://localhost:4001/api
+JWT_SECRET="super_secret_key"
+```
+
+### 4. Run frontend
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Design Decision:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Design
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Reason:
+A clean two-column layout — TTS controls on the left, conversion history on the right — keeps the main action area in focus while still making past results accessible.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+Trade Off:
+Limits space for displaying longer histories without scrolling; requires responsive adjustments for smaller screens.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Framework
 
-## Learn More
+NextJs
 
-To learn more about Next.js, take a look at the following resources:
+- Fast setup
+- Server-side rendering
+- File-based routing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+Trade off:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Some familiarity required with Next.js conventions
+- Some advanced optimizations require a deeper understanding of how SSR and SSG work
 
-## Deploy on Vercel
+### Styling
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+TailwindCSS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+- Rapid styling via utility classes
+- Consistent design without creating separate CSS files
+
+Trade Off:
+
+- AdvancedUtility class-heavy HTML can look cluttered without proper organization
+- Requires familiarity with Tailwind’s class naming conventions
+
+### State management
+
+Zustand
+
+- Lightweight global state management
+- Minimal boilerplate for state that crosses components
+
+Trade Off:
+
+- Not as established as Redux
+- Fewer middlewares/plugins

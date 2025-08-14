@@ -95,9 +95,40 @@ const TextToSpeechForm = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Text to Speech Converter
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Text to Speech Converter
+        </h2>
+        
+        {/* Animated Speaker Icon */}
+        <div className="relative">
+          <div
+            className={`flex items-center justify-center transition-all duration-300 ${
+              isSpeaking ? "text-indigo-600" : "text-gray-400"
+            }`}
+          >
+            <svg
+              className={`size-8 transition-transform duration-200 ${
+                isSpeaking ? "scale-110" : "scale-100"
+              }`}
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+          </div>
+          
+          {/* Sound wave animation rings */}
+          {isSpeaking && (
+            <>
+              <div className="absolute inset-0 rounded-full border-2 border-indigo-400 animate-ping opacity-75"></div>
+              <div className="absolute inset-0 rounded-full border-2 border-indigo-300 animate-ping opacity-50" style={{ animationDelay: '0.2s' }}></div>
+              <div className="absolute inset-0 rounded-full border-2 border-indigo-200 animate-ping opacity-25" style={{ animationDelay: '0.4s' }}></div>
+            </>
+          )}
+        </div>
+      </div>
 
       <textarea
         id="text-input"
